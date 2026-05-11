@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Universal Digit Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #0F172A; color: white; font-family: Arial; margin:0; padding:20px; }
+      .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: #D4AF37; text-align:center; }
+      .stat { background:#1E293B; padding:12px; border-radius:8px; margin:10px 0; text-align:center; }
+      .disclaimer { font-size:11px; color:#94A3B8; text-align:center; margin-top:20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Universal Traders Digit Analyzer</h1>
+        <div class="stat">V75 Live Frequency | Last update: <span id="time">-</span></div>
+        <div class="stat">Latest Digit: <span id="latest">-</span> | Total Ticks: <span id="total">0</span></div>
+        <canvas id="digitChart"></canvas>
+        <div class="disclaimer">
+            Disclaimer: Digits are random RNG. Past results ≠ future results. 90% of traders lose money. Trade responsibly.
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('digitChart');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['0','1','2','3','4','5','6','7','8','9'],
+                datasets: [{
+                    label: 'Frequency %',
+                    data: [0,0,0,0],
+                    backgroundColor: '#003366',
+                    borderColor: '#D4AF37',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true, max: 20, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
+                },
+                plugins: { legend: { labels: { color: 'white' } } }
+            }
+        });
+
+        function loadData() {
+            fetch('./data.json?' + new Date().getTime()) //? prevents caching
+               .then(r => r.json())
+               .then(data => {
+                    let freqArray = [];
+                    for(let i=0; i<10; i++) { freqArray.push(data.frequencies[i] || 0); }
+                    chart.data.datasets[0].data = freqArray;
+                    chart.update();
+                    document.getElementById('latest').innerText = data.latest;
+                    document.getElementById('total').innerText = data.total;
+                    document.getElementById('time').innerText = data.updated;
+                });
+        }
+        loadData();
+        setInterval(loadData, 10000); // Refresh every 10s
+    </script>
+</body>
+</html>
