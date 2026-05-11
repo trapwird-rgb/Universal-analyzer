@@ -1,0 +1,86 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "toc_visible": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 141
+        },
+        "id": "qy33ux0-2cKf",
+        "outputId": "804cae8f-ed72-4339-f6fb-6013efc4cdd5"
+      },
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "IndentationError",
+          "evalue": "unexpected indent (2692705317.py, line 13)",
+          "traceback": [
+            "\u001b[0;36m  File \u001b[0;32m\"/tmp/ipykernel_568/2692705317.py\"\u001b[0;36m, line \u001b[0;32m13\u001b[0m\n\u001b[0;31m    data = json.loads(message)\u001b[0m\n\u001b[0m    ^\u001b[0m\n\u001b[0;31mIndentationError\u001b[0m\u001b[0;31m:\u001b[0m unexpected indent\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install websocket-client requests\n",
+        "\n",
+        "import websocket, json, time\n",
+        "from google.colab import files\n",
+        "from collections import Counter\n",
+        "\n",
+        "APP_ID = 1089\n",
+        "API_TOKEN = \"M3TEirlMSsHvvAY\" # ← Replace with your token\n",
+        "digits_history = []\n",
+        "\n",
+        "def on_message(ws, message):\n",
+        "    global digits_history\n",
+        "        data = json.loads(message)\n",
+        "            if 'tick' in data:\n",
+        "                    last_digit = int(str(data['tick']['quote'])[-1])\n",
+        "                            digits_history.append(last_digit)\n",
+        "                                    if len(digits_history) > 100:\n",
+        "                                                digits_history.pop(0)\n",
+        "                                                        print(f\"Got digit: {last_digit} | Total: {len(digits_history)}\")\n",
+        "\n",
+        "                                                                # Every 10 ticks, save to file for website\n",
+        "                                                                        if len(digits_history) % 10 == 0:\n",
+        "                                                                                    save_data()\n",
+        "\n",
+        "                                                                                    def save_data():\n",
+        "                                                                                        count = Counter(digits_history)\n",
+        "                                                                                            total = len(digits_history)\n",
+        "                                                                                                frequencies = {i: round(count.get(i, 0) / total * 100, 1) for i in range(10)}\n",
+        "\n",
+        "                                                                                                    data = {\n",
+        "                                                                                                            \"frequencies\": frequencies,\n",
+        "                                                                                                                    \"total\": total,\n",
+        "                                                                                                                            \"latest\": digits_history[-1] if digits_history else \"-\",\n",
+        "                                                                                                                                    \"updated\": time.strftime(\"%H:%M:%S\")\n",
+        "                                                                                                                                        }\n",
+        "\n",
+        "                                                                                                                                            with open('data.json', 'w') as f:\n",
+        "                                                                                                                                                    json.dump(data, f)\n",
+        "                                                                                                                                                        print(\"Updated data.json\")\n",
+        "\n",
+        "                                                                                                                                                        ws = websocket.WebSocketApp(f\"wss://ws.binaryws.com/websockets/v3?app_id={APP_ID}\", on_message=on_message)\n",
+        "                                                                                                                                                        ws.send(json.dumps({\"authorize\": API_TOKEN}))\n",
+        "                                                                                                                                                        ws.run_forever()"
+      ]
+    }
+  ]
+}
