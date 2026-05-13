@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Deriv Analyzer</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h1>Deriv Digit Analyzer</h1>
+
+<div class="card">
+<p>Live Tick:</p>
+<p id="tick">Waiting...</p>
+</div>
+
+<div class="card">
+<p>Last Digit:</p>
+<p id="digit">-</p>
+</div>
+
+<div class="card">
+<p>Signal:</p>
+<p id="signal">Analyzing...</p>
+</div>
+
+<canvas id="digitChart"></canvas>
+
+<script src="chart.js"></script>
+<script src="ai.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
